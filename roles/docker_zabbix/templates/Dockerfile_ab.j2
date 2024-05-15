@@ -1,0 +1,21 @@
+FROM zabbix/zabbix-agent:alpine-trunk
+
+ENV ZBX_HOSTNAME {{ ZBX_HOSTNAME }}
+ENV ZBX_STARTAGENTS 0
+ENV ZBX_ACTIVESERVERS zbx.azone-it.ru
+ENV ZBX_SERVER_PORT 10051
+
+USER root
+
+RUN apk update \
+    && apk upgrade \
+    && apk add --update --no-cache python3
+
+USER zabbix
+
+WORKDIR /
+
+COPY --chown=zabbix check_ab.py /etc/zabbix/
+#COPY --chown=zabbix config.db /etc/zabbix/
+#COPY --chown=zabbix activity.db /etc/zabbix/
+RUN echo "UserParameter=check.activebackup.jobs[*],/usr/bin/python3 /etc/zabbix/check_ab.py \$1" >> /etc/zabbix/zabbix_agentd.conf

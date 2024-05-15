@@ -1,0 +1,5 @@
+- name: Bootstrap playbook
+  hosts: synology_group
+  become: true
+  roles:
+    - bootstrap

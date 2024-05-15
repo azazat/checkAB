@@ -1,0 +1,3 @@
+---
+# vars file for docker_zabbix
+dest_folder: /var/services/homes/{{ ansible_user }}/zbx/

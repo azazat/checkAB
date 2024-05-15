@@ -1,0 +1,32 @@
+---
+# tasks file for bootstrap
+
+# - name: create ansible user
+#   tags: always
+#   user:
+#     name: "{{ ansible_user }}"
+#      group: ansoble
+
+#  - name: make sure .ssh folder exist
+#       file:
+#         path: /volume1/homes/ans/.ssh
+#         state: directory
+#         owner: ans
+#         mode: 0700
+
+- name: Add ssh key for "{{ ansible_user }}"
+  tags: always
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdT2j900mzt3WEPpng+u08xUKhgP2A7nWqWzXtuIhMPABTR2fwTDttOFQNJZ7w/OWyoQmeW\
+         +8URN9oYUQvclFP2901FmcbcBVleyQUNenFDi1R7Eap7Mhuk/IFqd/4dvYHfHalS22Hk0EG+bkOMRuQZRFWLsGjZjFLo+/DmxEl2thqSND2EoRvshOTB\
+         Tb47kzZzwZy1tMyfMvSQa+JAj9dVIihMJPy8sWnEvbln2YVuTJvLiJhH/VJ8MdZL25CqmN8DXaYz4+xeL+wExqDDNvN1VX+RYg3sjkqo4KgNG/f0kOp3C\
+         YOpPruU6KvGV2IlR0x++MeK9TfL65naoadNVjN rsa-key-20230426"
+
+- name: Add sudoers file for "{{ ansible_user }}"
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: "/etc/sudoers.d/{{ ansible_user }}"
+    owner: root
+    group: root
+    mode: "0440"

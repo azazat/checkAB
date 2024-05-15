@@ -1,0 +1,37 @@
+- name: Create directory for Docker files
+  ansible.builtin.file:
+    name: "{{ dest_folder }}"
+    state: directory
+    mode: "0700"
+
+- name: Generate Dockerfile
+  ansible.builtin.template:
+    src: Dockerfile_ab.j2
+    dest: "{{ dest_folder }}/Dockerfile"
+    mode: "0644"
+
+- name: Copy py script
+  ansible.builtin.copy:
+    src: check_ab.py
+    dest: "{{ dest_folder }}/"
+    mode: "0644"
+
+# todo: rebuild if script changed
+- name: Build image
+  community.docker.docker_image:
+    name: alpine-zabbix-py-v1
+    source: build
+    build:
+      path: "{{ dest_folder }}/"
+
+- name: Container present
+  community.docker.docker_container:
+    name: alpine-zabbix-py
+    state: started
+    image: alpine-zabbix-py-v1
+    detach: true
+    mounts:
+      - type: bind
+        source: /volume1/@ActiveBackup/
+        target: /db/
+        read_only: true

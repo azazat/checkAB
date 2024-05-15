@@ -1,0 +1,41 @@
+- name: Create directory for Docker files
+  ansible.builtin.file:
+    name: "{{ dest_folder }}"
+    state: directory
+    mode: "0755"
+
+- name: Generate Dockerfile
+  ansible.builtin.template:
+    src: Dockerfile_hb.j2
+    dest: "{{ dest_folder }}/Dockerfile"
+    mode: "0644"
+
+- name: Copy bash script
+  ansible.builtin.copy:
+    src: check_hb.sh
+    dest: "{{ dest_folder }}/"
+    mode: "0755"
+
+- name: Build image
+  community.docker.docker_image:
+    name: alpine-zabbix-v1
+    source: build
+    build:
+      path: "{{ dest_folder }}/"
+
+- name: Container present
+  community.docker.docker_container:
+    name: zbx
+    state: started
+    image: alpine-zabbix-v1
+    detach: true
+    mounts:
+      - type: bind
+        source: /var/log/synolog/synobackup.log
+        target: /synobackup.log
+        read_only: true
+
+- name: Add cron job to change permission for synobackup.log
+  ansible.builtin.lineinfile:
+    path: "/etc/crontab"
+    line: "30      3       *       *       *       root    chmod o+r /var/log/synolog/synobackup.log"

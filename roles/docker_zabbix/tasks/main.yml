@@ -1,0 +1,10 @@
+---
+# tasks file for docker_zabbix
+
+- name: Only for active backup
+  ansible.builtin.include_tasks: synology_group_active_backup.yml
+  when: "'synology_group_active_backup' in group_names"
+
+- name: Only for hyper backup
+  ansible.builtin.include_tasks: synology_group_hyper_backup.yml
+  when: "'synology_group_hyper_backup' in group_names"

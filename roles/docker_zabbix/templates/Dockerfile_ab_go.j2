@@ -1,0 +1,22 @@
+FROM golang:1.22.2 as build
+
+WORKDIR /go/src/app
+COPY . .
+
+RUN go mod download
+RUN CGO_ENABLED=1 go build -o /go/bin/app
+
+FROM zabbix/zabbix-agent:ubuntu-trunk
+
+ENV ZBX_HOSTNAME {{ ZBX_HOSTNAME }}
+ENV ZBX_STARTAGENTS 0
+ENV ZBX_ACTIVESERVERS {{ ZBX_ACTIVESERVERS }}
+ENV ZBX_SERVER_PORT 10051
+
+USER zabbix
+
+WORKDIR /
+COPY --from=build --chown=zabbix /go/bin/app /
+# COPY --chown=zabbix check_ab.py /etc/zabbix/
+
+RUN echo "UserParameter=check.activebackup.jobs[*],/app \$1" >> /etc/zabbix/zabbix_agentd.conf

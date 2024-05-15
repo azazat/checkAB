@@ -1,0 +1,5 @@
+- name: Zabbix in docker playbook
+  hosts: synology_group
+  become: true
+  roles:
+    - docker_zabbix

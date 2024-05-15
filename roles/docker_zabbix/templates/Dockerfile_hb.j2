@@ -1,0 +1,10 @@
+FROM zabbix/zabbix-agent
+
+ENV ZBX_HOSTNAME Ellipsisbeauty.synology
+ENV ZBX_STARTAGENTS 0
+ENV ZBX_ACTIVESERVERS zbx.azone-it.ru
+ENV ZBX_SERVER_PORT 10051
+
+COPY --chown=zabbix check_hb.sh /etc/zabbix/
+
+RUN echo "UserParameter=check.hyperbackup.last,bash /etc/zabbix/check_hb.sh" >> /etc/zabbix/zabbix_agentd.conf
